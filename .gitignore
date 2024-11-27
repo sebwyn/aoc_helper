@@ -1,0 +1,6 @@
+*.beam
+*.ez
+/build
+erl_crash.dump
+challenge_input/
+.env
