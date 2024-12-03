@@ -1,7 +1,7 @@
 pub fn part1(challenge_input: String) -> String {
-  "Not Implemented"
+  todo
 }
 
 pub fn part2(challenge_input: String) -> String {
-  "Not Implemented"
+  todo
 }
