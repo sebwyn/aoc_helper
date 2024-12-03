@@ -1,65 +1,45 @@
 import gleam/int
 import gleam/list
+import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam/string
 
+fn do_part1(arr: List(Int), asc: Option(Bool), mistake_count: Int) -> Int {
+  case arr, asc {
+    [_], _ | [], _ -> mistake_count
+    [a, b, ..rst], None if 1 <= a - b && a - b <= 3 || 1 <= b - a && b - a <= 3 ->
+      do_part1(list.flatten([[b], rst]), Some(a < b), mistake_count)
+    [a, b, ..rst], Some(False) if a > b && 1 <= a - b && a - b <= 3 ->
+      do_part1(list.flatten([[b], rst]), Some(False), mistake_count)
+    [a, b, ..rst], Some(True) if a < b && 1 <= b - a && b - a <= 3 ->
+      do_part1(list.flatten([[b], rst]), Some(True), mistake_count)
+    [_, b, ..rst], asc ->
+      do_part1(list.flatten([[b], rst]), asc, mistake_count + 1)
+  }
+}
+
 pub fn part1(challenge_input: String) -> String {
-  let points_for_result = fn(opp, me) -> Int {
-    case opp, me {
-      "A", "Y" | "B", "Z" | "C", "X" -> 6
-      "A", "X" | "B", "Y" | "C", "Z" -> 3
-      _, _ -> 0
-    }
-  }
-
-  let points_for_choice = fn(choice) -> Int {
-    case choice {
-      "X" -> 1
-      "Y" -> 2
-      "Z" -> 3
-      _ -> panic as "That isn't something I would choose"
-    }
-  }
-
   string.split(challenge_input, "\n")
-  |> list.map(fn(game) {
-    string.split_once(game, " ")
-    |> result.map(fn(choices) {
-      points_for_result(choices.0, choices.1) + points_for_choice(choices.1)
-    })
-    |> result.unwrap(0)
+  |> list.filter(fn(a) { !string.is_empty(a) })
+  |> list.map(fn(l) {
+    string.split(l, " ")
+    |> list.map(int.parse)
+    |> result.values()
   })
-  |> int.sum
+  |> list.filter(fn(a) { do_part1(a, option.None, 0) == 0 })
+  |> list.length
   |> int.to_string
 }
 
 pub fn part2(challenge_input: String) -> String {
-  let points_for_choice = fn(opp_choice, result) -> Int {
-    case opp_choice, result {
-      "A", "X" | "B", "Z" | "C", "Y" -> 3
-      "C", "X" | "A", "Z" | "B", "Y" -> 2
-      "B", "X" | "C", "Z" | "A", "Y" -> 1
-      _, _ -> panic as "Impossible"
-    }
-  }
-
-  let points_for_result = fn(result) -> Int {
-    case result {
-      "Z" -> 6
-      "Y" -> 3
-      "X" -> 0
-      _ -> panic as "Impossible"
-    }
-  }
-
   string.split(challenge_input, "\n")
-  |> list.map(fn(game) {
-    string.split_once(game, " ")
-    |> result.map(fn(choices) {
-      points_for_result(choices.1) + points_for_choice(choices.0, choices.1)
-    })
-    |> result.unwrap(0)
+  |> list.filter(fn(a) { !string.is_empty(a) })
+  |> list.map(fn(l) {
+    string.split(l, " ")
+    |> list.map(int.parse)
+    |> result.values()
   })
-  |> int.sum
+  |> list.filter(fn(a) { do_part1(a, option.None, 0) < 2 })
+  |> list.length
   |> int.to_string
 }

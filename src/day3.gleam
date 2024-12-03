@@ -1,59 +1,59 @@
 import gleam/int
+import gleam/io
 import gleam/list
+import gleam/option.{Some}
+import gleam/regex
 import gleam/result
-import gleam/set
-import gleam/string
-
-fn calculate_priority(codepoint: UtfCodepoint) {
-  case string.utf_codepoint_to_int(codepoint) {
-    //lowercase
-    a if a > 0x61 -> a - 0x60
-    //capital
-    b -> b - 0x40 + 26
-  }
-}
 
 pub fn part1(challenge_input: String) -> String {
-  string.split(challenge_input, "\n")
-  |> list.filter(fn(a) { !string.is_empty(a) })
-  |> list.map(fn(items) {
-    let #(first_compartment, second_compartment) =
-      list.split(string.to_utf_codepoints(items), string.length(items) / 2)
-
-    let assert [shared_type] =
-      set.intersection(
-        set.from_list(first_compartment),
-        set.from_list(second_compartment),
-      )
-      |> set.to_list
-
-    calculate_priority(shared_type)
+  let assert Ok(re) =
+    regex.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)", regex.Options(True, True))
+  regex.scan(re, challenge_input)
+  |> list.map(fn(a) {
+    case a.submatches {
+      [Some(a), Some(b)] ->
+        result.unwrap(int.parse(a), 0) * result.unwrap(int.parse(b), 0)
+      _ -> 0
+    }
   })
   |> int.sum
   |> int.to_string
 }
 
-pub fn part2(challenge_input: String) -> String {
-  string.split(challenge_input, "\n")
-  |> list.filter(fn(a) { !string.is_empty(a) })
-  |> do_part2(0)
-  |> int.to_string
+type Funcs {
+  Do
+  DoNot
+  Value(Int)
 }
 
-fn do_part2(rucksacks: List(String), priority_acc: Int) {
-  case rucksacks {
-    [] -> priority_acc
-    [rucksack_a, rucksack_b, rucksack_c, ..rest] -> {
-      let assert Ok([common_between_all]) =
-        [rucksack_a, rucksack_b, rucksack_c]
-        |> list.map(fn(rucksack) {
-          rucksack |> string.to_utf_codepoints |> set.from_list
-        })
-        |> list.reduce(set.intersection)
-        |> result.map(set.to_list)
-
-      do_part2(rest, priority_acc + calculate_priority(common_between_all))
-    }
-    _ -> panic as "Input is not a multiple of 3???"
+fn do_sum(funcs: List(Funcs), mul_enabled: Int, acc: Int) -> Int {
+  case funcs {
+    [] -> acc
+    [Do, ..r] -> do_sum(r, 1, acc)
+    [DoNot, ..r] -> do_sum(r, 0, acc)
+    [Value(a), ..r] -> do_sum(r, mul_enabled, acc + mul_enabled * a)
   }
+}
+
+pub fn part2(challenge_input: String) -> String {
+  let assert Ok(re) =
+    regex.compile(
+      "mul\\((\\d{1,3}),(\\d{1,3})\\)|do\\(\\)|don't\\(\\)",
+      regex.Options(True, True),
+    )
+  regex.scan(re, challenge_input)
+  |> list.map(fn(a) {
+    case a {
+      regex.Match("do()", ..) -> Do
+      regex.Match("don't()", ..) -> DoNot
+      regex.Match(_, [Some(a), Some(b)]) ->
+        Value(
+          { a |> int.parse |> result.unwrap(0) }
+          * { b |> int.parse |> result.unwrap(0) },
+        )
+      _ -> panic as "The regex should not land in this case"
+    }
+  })
+  |> do_sum(1, 0)
+  |> int.to_string
 }
