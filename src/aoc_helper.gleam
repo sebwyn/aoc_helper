@@ -42,7 +42,7 @@ pub fn main() {
   |> dot.set_debug(False)
   |> dot.load
 
-  let aoc_year = "2022"
+  let aoc_year = "2024"
 
   case argv.load().arguments {
     ["submit", day, part] -> {
