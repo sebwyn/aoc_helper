@@ -1,3 +1,4 @@
+import day5
 import gleam/list
 import gleam/io
 import day2
@@ -28,33 +29,37 @@ pub fn day2_test() {
   |> should.equal(4)
 }
 
-pub fn day4_test() {
+pub fn day5_test() {
   let challenge_input = 
-    "MMMSXXMASM" <> "\n" <>
-    "MSAMXMSMSA" <> "\n" <>
-    "AMXSXMAAMM" <> "\n" <>
-    "MSAMASMSMX" <> "\n" <>
-    "XMASAMXAMM" <> "\n" <>
-    "XXAMMXXAMA" <> "\n" <>
-    "SMSMSASXSS" <> "\n" <>
-    "SAXAMASAAA" <> "\n" <>
-    "MAMMMXMMMM" <> "\n" <>
-    "MXMXAXMASX" <> "\n" 
+"47|53
+97|13
+97|61
+97|47
+75|29
+61|13
+75|53
+29|13
+97|29
+53|29
+61|53
+97|53
+61|29
+47|13
+75|47
+97|75
+47|61
+75|61
+47|29
+75|13
+53|13
 
-  let expected_output = 
-    "....XXMAS." <> "\n" <>
-    ".SAMXMS..." <> "\n" <>
-    "...S..A..." <> "\n" <>
-    "..A.A.MS.X" <> "\n" <>
-    "XMASAMX.MM" <> "\n" <>
-    "X.....XA.A" <> "\n" <>
-    "S.S.S.S.SS" <> "\n" <>
-    ".A.A.A.A.A" <> "\n" <>
-    "..M.M.M.MM" <> "\n" <>
-    ".X.X.XMASX" <> "\n"
+75,47,61,53,29
+97,61,53,29,13
+75,29,13
+75,97,47,61,53
+61,13,29
+97,13,75,29,47"
 
-  let actual = day4.part1(challenge_input)
-  io.println(actual)
-  actual |> should.equal(expected_output)
-
+    day5.part1(challenge_input)
+    |> should.equal("143")
 }
