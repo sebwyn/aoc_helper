@@ -29,6 +29,8 @@ pub fn do_challenge(
     "4", "2" -> day4.part2(challenge_input)
     "5", "1" -> day5.part1(challenge_input)
     "5", "2" -> day5.part2(challenge_input)
+    "6", "1" -> day6.part1(challenge_input)
+    "6", "2" -> day6.part2(challenge_input)
     _, _ -> {
       let panic_message =
         "No solution found for day " <> challenge_day <> "'s challenge"
