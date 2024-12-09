@@ -1,3 +1,8 @@
+import gleam/result
+import gleam/int
+import gleam/float
+import birl/duration
+import birl
 import argv
 import day1
 import day2
@@ -68,8 +73,15 @@ pub fn main() {
         _ -> panic as "Give me permission to read your input file!!!"
       }
 
+      let before_run = birl.now() 
       let challenge_guess = do_challenge(day, part, challenge_input)
-
+      let execution_time = birl.difference(birl.now(), before_run) |> duration.blur_to(duration.MicroSecond) 
+        |> int.to_float 
+        |> float.divide(1_000_000.0) 
+        |> result.map(float.to_string)
+        |> result.unwrap("unknown")
+      
+      io.println("Solving Day " <> day <> " part " <> part <> " took: " <> execution_time)
       io.println("Challenge output for day " <> day <> ": " <> challenge_guess)
     }
     _ -> panic as "That command is not supported!"
