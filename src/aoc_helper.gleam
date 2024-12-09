@@ -1,3 +1,4 @@
+import day7
 import gleam/result
 import gleam/int
 import gleam/float
@@ -37,6 +38,8 @@ pub fn do_challenge(
     "5", "2" -> day5.part2(challenge_input)
     "6", "1" -> day6.part1(challenge_input)
     "6", "2" -> day6.part2(challenge_input)
+    "7", "1" -> day7.part1(challenge_input)
+    "7", "2" -> day7.part2(challenge_input)
     _, _ -> {
       let panic_message =
         "No solution found for day " <> challenge_day <> "'s challenge"
