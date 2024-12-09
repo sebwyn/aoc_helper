@@ -1,21 +1,13 @@
-import day7
-import day6
-import day5
-import gleam/list
-import gleam/io
 import day2
-import day4
+import day5
+import day6
+import day7
+import gleam/list
 import gleeunit
 import gleeunit/should
 
 pub fn main() {
   gleeunit.main()
-}
-
-// gleeunit test functions end in `_test`
-pub fn hello_world_test() {
-  1
-  |> should.equal(1)
 }
 
 pub fn day2_test() {
