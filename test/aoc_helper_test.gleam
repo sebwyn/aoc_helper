@@ -1,3 +1,4 @@
+import day6
 import day5
 import gleam/list
 import gleam/io
@@ -62,4 +63,22 @@ pub fn day5_test() {
 
     day5.part1(challenge_input)
     |> should.equal("143")
+}
+
+
+pub fn day6_test() {
+  let input = 
+"....#.....
+.........#
+..........
+..#.......
+.......#..
+..........
+.#..^.....
+........#.
+#.........
+......#..."
+
+    day6.part2(input)
+    |> should.equal("6")
 }

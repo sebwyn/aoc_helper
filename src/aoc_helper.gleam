@@ -4,6 +4,7 @@ import day2
 import day3
 import day4
 import day5
+import day6
 import dot_env as dot
 import dot_env/env
 import gleam/hackney
