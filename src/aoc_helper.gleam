@@ -231,9 +231,17 @@ fn add_gleam_test(
       let file_contains_test = string.contains(existing_test_content, "pub fn "<>test_name<>"() {") 
       use <- bool.guard(file_contains_test, Ok(Nil))
 
+      let existing_imports = existing_test_content |> string.split("\n") 
+        |> list.take_while(fn(a) { string.starts_with(a, "import") })
+        |> string.join("\n")
+      
+      let existing_code = existing_test_content |> string.split("\n") 
+        |> list.drop_while(fn(a) { string.starts_with(a, "import") || string.is_empty(a) })
+        |> string.join("\n")
+
       imports
-      |> list.append([existing_test_content, "", "", test_source_code])
-      |> list.filter(fn(line) { !string.contains(existing_test_content, line) })
+      |> list.filter(fn(new) { existing_imports |> string.contains(new) |> bool.negate })
+      |> list.append([existing_imports, "", "", existing_code, "", "", test_source_code])
       |> string.join("\n")
       |> file.write(test_file, _)
       |> result.map_error(fn(_) { "Failed to write a file at: " <> test_file })
