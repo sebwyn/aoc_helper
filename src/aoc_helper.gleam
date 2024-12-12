@@ -57,6 +57,16 @@ pub fn do_challenge(
   }
 }
 
+fn get_multiline_input(prompt: String) -> List(String) {
+  io.println(prompt)
+  iterator.repeatedly(fn() {
+    erlang.get_line("")
+    |> result.unwrap("")
+    |> string.trim
+  })
+  |> iterator.take_while(fn(a) { !string.is_empty(a) })
+  |> iterator.to_list
+}
 
 pub fn main() {
   dot.new()
@@ -81,49 +91,26 @@ pub fn main() {
 
     }
     ["add-test", day, part] -> {
-      let test_file_path = "test/day"<>day<>"_test.gleam"
+      let test_file = "test/day"<>day<>"_test.gleam"
+      let test_name = "part_"<>part<>"_sample_text_test"
 
-      use <- bool.guard(result.unwrap(file.is_file(test_file_path), True), Nil)
-      
-      let expected = erlang.get_line("What is the expected value (single line)>") |> result.unwrap("") |> string.trim
-      io.println("What is the input (multiline, finish with an empty line)>")
-
-      let multiline_input = 
-      iterator.repeatedly(fn() {
-        erlang.get_line("")
-        |> result.unwrap("")
-        |> string.trim
-      })
-      |> iterator.take_while(fn(a) { a |> string.is_empty |> bool.negate })
-      |> iterator.to_list
-      |> list.map(fn(line) { "    \""<>line<>"\","})
-
-      let source_code = [
-        [
-          "import day"<>day,
-          "import gleam/string",
-          "import gleeunit/should",
-          "",
-          "pub fn part"<>part<>"_sample_text_test() {",
-          "  ["
-        ],
-        multiline_input,
-        [
-          "  ]",
-          "  |> string.join(\"\\n\")",
-          "  |> day"<>day<>".part"<>part<>"()",
-          "  |> should.equal(\""<>expected<>"\")",
-          "}"
-        ]
+      let imports = [
+        "import day"<>day,
+        "import gleam/string",
+        "import gleeunit/should",
       ]
-      |> list.flatten
-      |> string.join("\n")
 
-      file.create_file(test_file_path)
+      let input = get_multiline_input("What is the input (multiline, finish with an empty line)>")
+        |> list.map(fn(line) { "  \""<>line<>"\","})
+      let input_code = [ ["["], input, ["]", "|> string.join(\"\\n\")"] ] |> list.flatten
+      let production_call = "day"<>day<>".part"<>part
+      let expected = "\""<>{erlang.get_line("What is the expected value (single line)>") |> result.unwrap("") |> string.trim}<>"\""
+
+      test_file 
+      |> add_gleam_test(test_name, imports, input_code, production_call, expected)
       |> should.equal(Ok(Nil))
 
-      file.write(test_file_path, source_code)
-      |> should.equal(Ok(Nil))
+      Nil
     }
     ["submit", day, part] -> {
       let challenge_input = get_users_challenge_input(aoc_year, day) 
@@ -149,24 +136,24 @@ pub fn main() {
 }
 
 pub fn get_users_challenge_input(year: String, day: String) {
-    let input_file_name = "challenge_input/day" <> day <> ".txt"
+  let input_file_name = "challenge_input/day" <> day <> ".txt"
 
-    let challenge_input: String = case file.is_file(input_file_name) {
-      Ok(True) -> {
-        let assert Ok(challenge_input) = file.read(input_file_name)
+  case file.is_file(input_file_name) {
+    Ok(True) -> {
+      let assert Ok(challenge_input) = file.read(input_file_name)
 
-        challenge_input
-      }
-      Ok(False) -> {
-        let challenge_input = fetch_input(year, day)
-
-        let assert Ok(Nil) = file.create_file(input_file_name)
-        let assert Ok(Nil) = file.write(input_file_name, challenge_input)
-
-        challenge_input
-      }
-      _ -> panic as "Give me permission to read your input file!!!"
+      challenge_input
     }
+    Ok(False) -> {
+      let challenge_input = fetch_input(year, day)
+
+      let assert Ok(Nil) = file.create_file(input_file_name)
+      let assert Ok(Nil) = file.write(input_file_name, challenge_input)
+
+      challenge_input
+    }
+    _ -> panic as "Give me permission to read your input file!!!"
+  }
 }
 
 fn fetch_input(year: String, day: String) -> String {
@@ -186,54 +173,68 @@ fn fetch_input(year: String, day: String) -> String {
 }
 
 fn add_test_matches_website(year: String, day: String, part: String, answer: String) -> Result(Nil, String) {
-  let test_file_name = "test/day" <> day <> "_test.gleam"
+  let test_file = "test/day" <> day <> "_test.gleam"
   
+  let test_name = "part"<>part<>"_on_full_input_test"
+
   let imports = [ 
     "import day"<>day,
     "import aoc_helper",
     "import gleeunit/should"
   ]
+  let input_lines = ["aoc_helper.get_users_challenge_input(\""<>year<>"\", \""<>day<>"\")"]
+  let production_call = "day"<>day<>".part"<>part
+  let expected_value = "\""<>answer<>"\""
+  
+  test_file
+  |> add_gleam_test(test_name, imports, input_lines, production_call, expected_value)
+}
 
-  let test_source = [
-    "pub fn day"<>day<>"_part"<>part<>"_on_full_input_test() {",
-    "  aoc_helper.get_users_challenge_input(\""<>year<>"\", \""<>day<>"\")",
-    "  |> day"<>day<>".part"<>part<>"()",
-    "  |> should.equal(\""<>answer<>"\")",
-    "}"
-  ]
-  |> string.join("\n")
+fn add_gleam_test(
+  test_file: String, 
+  test_name: String, 
+  imports: List(String), 
+  input_code: List(String),
+  production_call: String,
+  expected_value: String
+) {
+  let test_source_code = 
+    [
+      "pub fn "<>test_name<>"() {", 
+      input_code |> list.map(fn(i) { string.concat(["  ", i]) }) |> string.join("\n"),
+      "  |> "<>production_call,
+      "  |> should.equal("<>expected_value<>")",
+      "}"
+    ]
+    |> string.join("\n")
 
-  case file.is_directory("test") {
-    Error(_) -> Error("Could not find a test directory! Are you running this from within the project?")
-    Ok(_) -> {
-      case file.is_file(test_file_name) {
-        Error(_) | Ok(False) -> {
-          let source_code = { imports |> string.join("\n") } <> "\n\n" <> test_source
-          
-          let create_and_write_file = fn() {
-            use _ <- result.try(file.create_file(test_file_name))
-            use _ <- result.try(file.write(test_file_name, source_code))
-            Ok(Nil)
-          }
-
-          create_and_write_file() |> result.map_error(fn(_) { "Failed to create a file at: " <> test_file_name })
-        }
-        Ok(True) -> { 
-          let assert Ok(existing_test_content) = file.read(test_file_name)
-
-          let file_contains_test = string.contains(existing_test_content, "pub fn day"<>day<>"_part"<>part<>"_on_full_input_test") 
-          use <- bool.guard(file_contains_test, Ok(Nil))
-
-          imports
-          |> list.filter(fn(line) { !string.contains(existing_test_content, line) })
-          |> list.append([existing_test_content, test_source])
-          |> string.join("\n")
-          |> file.write(test_file_name, _)
-          |> should.equal(Ok(Nil)) 
-
-          Ok(Nil)
-        }
+  case file.is_file(test_file) {
+    Error(_) | Ok(False) -> {
+      let create_and_write_file = fn(file_name: String, content: String) {
+        use _ <- result.try(file.create_file(file_name))
+        use _ <- result.try(file.write(file_name, content))
+        Ok(Nil)
       }
+
+      imports
+      |> list.append(["", "", test_source_code])
+      |> string.join("\n")
+      |> create_and_write_file(test_file, _)
+      |> result.map_error(fn(_) { "Failed to create a file at: " <> test_file })
+    }
+    Ok(True) -> { 
+      let assert Ok(existing_test_content) = file.read(test_file)
+
+      let file_contains_test = string.contains(existing_test_content, "pub fn "<>test_name<>"() {") 
+      use <- bool.guard(file_contains_test, Ok(Nil))
+
+      imports
+      |> list.append([existing_test_content, "", "", test_source_code])
+      |> list.filter(fn(line) { !string.contains(existing_test_content, line) })
+      |> string.join("\n")
+      |> file.write(test_file, _)
+      |> result.map_error(fn(_) { "Failed to write a file at: " <> test_file })
     }
   }
 }
+
