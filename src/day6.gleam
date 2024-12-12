@@ -5,8 +5,7 @@ import gleam/result
 import gleam/list
 import gleam/string
 
-fn enumerate(l: List(a)) -> List(#(Int, a)) { l |> list.index_map(fn(x, i) { #(i, x)})
-}
+fn enumerate(l: List(a)) -> List(#(Int, a)) { l |> list.index_map(fn(x, i) { #(i, x)}) }
 
 fn parse(challenge_input: String) -> #(#(Int, Int), Set(#(Int, Int)), #(Int, Int)) {
   let rows = string.split(challenge_input, "\n") |> list.filter(fn(r) { ! string.is_empty(r) })
