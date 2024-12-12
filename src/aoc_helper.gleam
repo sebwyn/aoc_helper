@@ -57,6 +57,12 @@ pub fn do_challenge(
   }
 }
 
+fn read_env() {
+  dot.new()
+  |> dot.set_debug(False)
+  |> dot.load
+}
+
 fn get_multiline_input(prompt: String) -> List(String) {
   io.println(prompt)
   iterator.repeatedly(fn() {
@@ -69,12 +75,7 @@ fn get_multiline_input(prompt: String) -> List(String) {
 }
 
 pub fn main() {
-  dot.new()
-  |> dot.set_debug(False)
-  |> dot.load
-
   let aoc_year = "2024"
-
   case argv.load().arguments {
     ["start", day] -> {
       let source_file_path = "src/day"<>day<>".gleam"
@@ -136,6 +137,8 @@ pub fn main() {
 }
 
 pub fn get_users_challenge_input(year: String, day: String) {
+  read_env()
+
   let input_file_name = "challenge_input/day" <> day <> ".txt"
 
   case file.is_file(input_file_name) {
