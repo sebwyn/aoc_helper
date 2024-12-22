@@ -1,24 +1,14 @@
-import day10
-import day9
 import gleam/iterator
 import gleeunit/should
 import gleam/bool
 import gleam/list
 import gleam/string
-import day8
-import day7
 import gleam/result
 import gleam/int
 import gleam/float
 import birl/duration
 import birl
 import argv
-import day1
-import day2
-import day3
-import day4
-import day5
-import day6
 import dot_env as dot
 import dot_env/env
 import gleam/hackney
@@ -27,7 +17,17 @@ import gleam/io
 import simplifile as file
 import gleam/erlang
 
-const aoc_url: String = "https://adventofcode.com/"
+import day1
+import day2
+import day3
+import day4
+import day5
+import day6
+import day7
+import day8
+import day9
+import day10
+import day11
 
 pub fn do_challenge(
   challenge_day: String,
@@ -55,6 +55,8 @@ pub fn do_challenge(
     "9", "2" -> day9.part2(challenge_input)
     "10", "1" -> day10.part1(challenge_input)
     "10", "2" -> day10.part2(challenge_input)
+    "11", "1" -> day11.part1(challenge_input)
+    "11", "2" -> day11.part2(challenge_input)
     _, _ -> {
       let panic_message =
         "No solution found for day " <> challenge_day <> "'s challenge"
@@ -62,6 +64,8 @@ pub fn do_challenge(
     }
   }
 }
+
+const aoc_url: String = "https://adventofcode.com/"
 
 fn read_env() {
   dot.new()
