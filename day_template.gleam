@@ -1,4 +1,4 @@
-fn parse(input: String) -> a {
+fn parse(input: String) -> Nil {
   Nil
 }
 

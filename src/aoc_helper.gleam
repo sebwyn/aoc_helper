@@ -1,3 +1,5 @@
+import day10
+import day9
 import gleam/iterator
 import gleeunit/should
 import gleam/bool
@@ -49,6 +51,10 @@ pub fn do_challenge(
     "7", "2" -> day7.part2(challenge_input)
     "8", "1" -> day8.part1(challenge_input)
     "8", "2" -> day8.part2(challenge_input)
+    "9", "1" -> day9.part1(challenge_input)
+    "9", "2" -> day9.part2(challenge_input)
+    "10", "1" -> day10.part1(challenge_input)
+    "10", "2" -> day10.part2(challenge_input)
     _, _ -> {
       let panic_message =
         "No solution found for day " <> challenge_day <> "'s challenge"
@@ -89,7 +95,6 @@ pub fn main() {
 
       file.write(source_file_path, source_template)
       |> should.equal(Ok(Nil))
-
     }
     ["add-test", day, part] -> {
       let test_file = "test/day"<>day<>"_test.gleam"
