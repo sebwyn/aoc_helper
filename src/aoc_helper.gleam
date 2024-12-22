@@ -28,6 +28,7 @@ import day8
 import day9
 import day10
 import day11
+import day12
 
 pub fn do_challenge(
   challenge_day: String,
@@ -57,6 +58,8 @@ pub fn do_challenge(
     "10", "2" -> day10.part2(challenge_input)
     "11", "1" -> day11.part1(challenge_input)
     "11", "2" -> day11.part2(challenge_input)
+    "12", "1" -> day12.part1(challenge_input)
+    "12", "2" -> day12.part2(challenge_input)
     _, _ -> {
       let panic_message =
         "No solution found for day " <> challenge_day <> "'s challenge"
