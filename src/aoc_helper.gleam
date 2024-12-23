@@ -1,3 +1,4 @@
+import day13
 import gleam/iterator
 import gleeunit/should
 import gleam/bool
@@ -60,6 +61,8 @@ pub fn do_challenge(
     "11", "2" -> day11.part2(challenge_input)
     "12", "1" -> day12.part1(challenge_input)
     "12", "2" -> day12.part2(challenge_input)
+    "13", "1" -> day13.part1(challenge_input)
+    "13", "2" -> day13.part2(challenge_input)
     _, _ -> {
       let panic_message =
         "No solution found for day " <> challenge_day <> "'s challenge"
