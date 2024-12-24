@@ -4,7 +4,7 @@ import gleam/result
 import gleam/list
 import gleam/string
 import gleam/regex
-import gleam/option.{Some}
+import gleam/option
 
 type ClawGame {
   ClawGame(a_button_delta: #(Int, Int), b_button_delta: #(Int, Int), prize: #(Int, Int))
@@ -20,15 +20,11 @@ fn parse(input: String) -> Result(List(ClawGame), Nil) {
   |> list.try_map(fn(rules) {
     use a_match <- result.try(regex.scan(button_a_regex, rules) |> list.first)
     use b_match <- result.try(regex.scan(button_b_regex, rules) |> list.first)
-    use prize_match <- result.try(regex.scan(prize_regex, rules) |> list.first)
-
-    let assert [Some(a_button_x), Some(a_button_y)] = a_match.submatches
-    let assert [Some(b_button_x), Some(b_button_y)] = b_match.submatches
-    let assert [Some(prize_x), Some(prize_y)] = prize_match.submatches
-
-    let assert Ok([a_button_x, a_button_y, b_button_x, b_button_y, prize_x, prize_y]) = 
-      [a_button_x, a_button_y, b_button_x, b_button_y, prize_x, prize_y] 
-      |> list.try_map(int.parse)
+    use p_match <- result.try(regex.scan(prize_regex, rules) |> list.first)
+    
+    let assert Ok([a_button_x, a_button_y]) = a_match.submatches |> option.values |> list.try_map(int.parse)
+    let assert Ok([b_button_x, b_button_y]) = b_match.submatches |> option.values |> list.try_map(int.parse)
+    let assert Ok([   prize_x,    prize_y]) = p_match.submatches |> option.values |> list.try_map(int.parse)
     
     Ok(ClawGame(#(a_button_x, a_button_y), #(b_button_x, b_button_y), #(prize_x, prize_y)))
   })
@@ -54,7 +50,7 @@ fn compute_presses_for_game(game: ClawGame) -> Result(#(Int, Int), Nil) {
 
 pub fn part1(challenge_input: String) -> String {
   let assert Ok(games) = parse(challenge_input)
-  
+
   games
   |> list.filter_map(compute_presses_for_game)
   |> list.map(fn(a_b) { a_b.1 + 3 * a_b.0 })

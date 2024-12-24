@@ -102,7 +102,7 @@ fn find_all_possible_forks(grid: Grid(Int), val: Int, pos: #(Int, Int)) -> Int {
 
 pub fn part2(challenge_input: String) -> String {
   let assert Ok(grid) = challenge_input |> parse 
-
+  
   find_all_zeros(grid)
   |> list.map(fn(p) { find_all_possible_forks(grid, 0, p) })
   |> int.sum
